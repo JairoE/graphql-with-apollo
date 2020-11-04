@@ -1,8 +1,23 @@
 import express from "express";
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
+import { resolvers } from "./resolvers";
 
+import { loadSchemaSync } from "@graphql-tools/load";
+import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
+import { addResolversToSchema } from "@graphql-tools/schema";
+
+import { join } from "path";
+
+const schema = loadSchemaSync(join(__dirname, "schema.graphql"), {
+  loaders: [new GraphQLFileLoader()],
+});
+
+const schemaWithResolvers = addResolversToSchema({
+  schema,
+  resolvers,
+});
 const startServer = () => {
-  const server = new ApolloServer({});
+  const server = new ApolloServer({ schema: schemaWithResolvers });
 
   const app = express();
 
